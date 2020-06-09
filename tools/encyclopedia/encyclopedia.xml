@@ -24,7 +24,7 @@
     <inputs>
         <expand macro="scan_input"/>
         <expand macro="fasta_input"/>
-        <expand macro="lib_input"/>
+        <expand macro="lib_input" token_optional="false" token_help="Chromatogram elib from SearchToLib"/>
         <expand macro="common_options"/>
         <expand macro="mass_library_tolerance"/>
         <expand macro="percolator_options"/>

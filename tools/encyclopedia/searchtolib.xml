@@ -9,12 +9,17 @@
         @LINK_SCAN_INPUTS@
         @LINK_FASTA_INPUT@
         @LINK_TARGET_FASTA@
+        @LINK_LIB_INPUT@
         for SCAN_FILE in `ls -1 inputs/*`; do 
         echo "\$SCAN_FILE" &&
-        EncyclopeDIA -Djava.awt.headless=true -Xmx12g $search_app
+        EncyclopeDIA -Djava.awt.headless=true -Xmx20g 
+        #if not $l
+            -walnut
+        #end if
         -i \$SCAN_FILE
         @FASTA_INPUT@
         @TARGET_FASTA@
+        @LIB_INPUT@
         @COMMON_OPTIONS@
         @MASS_LIBRARY_TOLERANCE@
         @PERCOLATOR_OPTIONS@
@@ -24,29 +29,30 @@
         @SEARCH_OPTIONS@ | tee -a search2lib.log
         ; done && 
         EncyclopeDIA -Djava.awt.headless=true -Xmx12g -libexport
-        $search_app
+        #if not $l
+            -pecan
+        #end if
         @SCAN_INPUTS@
         @FASTA_INPUT@
         @TARGET_FASTA@
-        @COMMON_OPTIONS@
-        @MASS_LIBRARY_TOLERANCE@
-        @PERCOLATOR_OPTIONS@
-        @PEAK_OPTIONS@
-        @WINDOW_OPTIONS@
-        @MODIFICATION_OPTIONS@
-        @SEARCH_OPTIONS@
-        -o gxpedia
+        @LIB_INPUT@
+        ## @COMMON_OPTIONS@
+        ## @MASS_LIBRARY_TOLERANCE@
+        ## @PERCOLATOR_OPTIONS@
+        ## @PEAK_OPTIONS@
+        ## @WINDOW_OPTIONS@
+        ## @MODIFICATION_OPTIONS@
+        ## @SEARCH_OPTIONS@
+        -a $a
+        -o chromatogram_library.elib
         | tee -a search2lib.log
     ]]></command>
     <inputs>
         <expand macro="scan_inputs"/>
+        <expand macro="lib_input" token_optional="true" token_help="If a prosit dlib is supplied, use EncycopeDIA, else use walnut"/>
         <expand macro="fasta_input"/>
         <expand macro="target_fasta"/>
-        <param name="search_app" type="select" label="Search with">
-            <option value="" selected="true">EncyclopeDIA</option>
-            <option value="-pecan">Pecan</option>
-            <option value="-xcordia">XCorDIA</option>
-        </param>
+        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files"/>
         <expand macro="common_options"/>
         <expand macro="mass_library_tolerance"/>
         <expand macro="percolator_options"/>
@@ -59,48 +65,52 @@
             <option value="elib" selected="true">elib</option>
             <option value="features" selected="true">concatenated_features.txt</option>
             <option value="results" selected="true">concatenated_results.txt</option>
-            <option value="decoy" selected="true">concatenated_decoy.txt</option>
+            <option value="decoy" selected="false">concatenated_decoy.txt</option>
+            <!--
             <option value="peptides" selected="true">peptides.txt</option>
             <option value="proteins" selected="true">proteins.txt</option>
+            -->
         </param>
     </inputs>
     <outputs>
         <data name="log" format="txt" label="${tool.name} ${on_string} log" from_work_dir="search2lib.log">
             <filter>'log' in select_outputs</filter>
         </data>
-        <data name="elib" format="elib" label="${tool.name} ${on_string} elib" from_work_dir="gxpedia">
+        <data name="elib" format="elib" label="${tool.name} ${on_string} elib" from_work_dir="chromatogram_library.elib">
             <filter>'elib' in select_outputs</filter>
         </data>
-        <data name="features" format="tabular" label="${tool.name} ${on_string} concatenated_features.txt" from_work_dir="inputs/gxpedia_concatenated_features.txt">
+        <data name="features" format="tabular" label="${tool.name} ${on_string} concatenated_features.txt" from_work_dir="inputs/chromatogram_library_concatenated_features.txt">
             <filter>'features' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="id,TD,ScanNr,topN,rank,peakZScore,peakCalibratedScore,deltaSn,avgIdotp,midIdotp,peakScore,peakWeightedScore,NCI,CIMassErrMean,CIMassErrVar,precursorMassErrMean,precursorMassErrVar,peakSimilarity,sampledTimes,midTime,spectraNorm,pepLength,charge2,charge3,precursorMz,sequence,protein" />
             </actions>
         </data>
-        <data name="results" format="tabular" label="${tool.name} ${on_string} concatenated_results.txt" from_work_dir="inputs/gxpedia_concatenated_results.txt">
+        <data name="results" format="tabular" label="${tool.name} ${on_string} concatenated_results.txt" from_work_dir="inputs/chromatogram_library_concatenated_results.txt">
             <filter>'results' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="PSMId,score,q-value,posterior_error_prob,peptide,proteinIds" />
             </actions>
         </data>
-        <data name="decoy" format="tabular" label="${tool.name} ${on_string} concatenated_decoy.txt" from_work_dir="inputs/gxpedia_concatenated_decoy.txt">
+        <data name="decoy" format="tabular" label="${tool.name} ${on_string} concatenated_decoy.txt" from_work_dir="inputs/chromatogram_library_concatenated_decoy.txt">
             <filter>'decoy' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="PSMId,score,q-value,posterior_error_prob,peptide,proteinIds" />
             </actions>
         </data>
-        <data name="peptides" format="tabular" label="${tool.name} ${on_string} peptides.txt" from_work_dir="gxpedia.peptides.txt">
+<!--
+        <data name="peptides" format="tabular" label="${tool.name} ${on_string} peptides.txt" from_work_dir="chromatogram_library.peptides.txt">
             <filter>'peptides' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="Peptide,Protein,numFragments" />
             </actions>
         </data>
-        <data name="proteins" format="tabular" label="${tool.name} ${on_string} proteins.txt" from_work_dir="gxpedia.proteins.txt">
+        <data name="proteins" format="tabular" label="${tool.name} ${on_string} proteins.txt" from_work_dir="chromatogram_library.proteins.txt">
             <filter>'proteins' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="Protein,NumPeptides,PeptideSequences" />
             </actions>
         </data>
+-->
     </outputs>
     <help><![CDATA[
 SearchToLIB uses EncyclopeDIA, Walnut (Pecan), or XCorDIA to create an DIA Elib for EncyclopeDIA DIA search

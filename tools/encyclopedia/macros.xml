@@ -1,4 +1,28 @@
 <macros>
+<!--
+# generate a Walnut CLIB from GPF-DIA and a FASTA
+for i in library/*.mzML; do 
+    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -walnut -i $i -f uniprot_yeast_25jan2019.fasta; 
+done
+java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -libexport -walnut -o chromatogram_library.elib -i library -f uniprot_yeast_25jan2019.fasta -a false;
+
+# process single-injection DIA with the CLIB
+for i in quant/*.mzML; do 
+    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -i $i -l chromatogram_library.elib -f uniprot_yeast_25jan2019.fasta;
+done
+
+Next for Prosit:
+# generate an EncyclopeDIA CLIB from GPF-DIA and a Prosit Library
+for i in library/*.mzML; do 
+    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -i $i -l prosit_library.dlib -f uniprot_yeast_25jan2019.fasta; 
+done
+java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -libexport -o chromatogram_library.elib -i library -f uniprot_yeast_25jan2019.fasta -a false;
+
+# process single-injection DIA with the CLIB (exactly the same as with Walnut)
+for i in quant/*.mzML; do 
+    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -i $i -l chromatogram_library.elib -f uniprot_yeast_25jan2019.fasta;
+done
+-->
     <token name="@VERSION@">0.9.0</token>
     <xml name="requirements">
         <requirements>
@@ -12,18 +36,49 @@
         </citations>
     </xml>
     <token name="@CMD_IMPORTS@">
-    #import re
-    #set $i_name = None
-    #set $f_name = None
-    #set $l_name = None
-    #set $t_name = None
+#import re
+#def identifier_or_name($input1)
+    #if hasattr($input1, 'element_identifier')
+        #return $input1.element_identifier
+    #else
+        #return $input1.name
+    #end if
+#end def
+#def clean($name1)
+    ## #set $name_clean = $re.sub('[^\w\-_\.]', '_', $re.sub('(?i[.](fa|fasta|imzml|mzml)$)','', $re.sub('.*/','', $name1.rstrip('.gz'))))
+    ## #set $name_clean = $re.sub('[^\w\-_\.]', '_', $re.sub('.*/','', $name1.rstrip('.gz')))
+    #set $name_clean = $re.sub('[^\w\-_\.]', '_', $re.sub('(?i)[.](fa|fasta|imzml|mzml)$','', $re.sub('.*/','', $name1.rstrip('.gz'))))
+    #return $name_clean
+#end def
+#def ln_name($ds) 
+    #set $ext = ''
+    #if $ds.is_of_type('mzml')
+        #set $ext = ".mzML"
+    #else if $ds.is_of_type('elib')
+        #set $ext = ".elib"
+    #else if $ds.is_of_type('dlib')
+        #set $ext = ".dlib"
+    #else if $ds.is_of_type('blib')
+        #set $ext = ".blib"
+    #else if $ds.is_of_type('fasta')
+        #set $ext = ".fasta"
+    #else if $ds.is_of_type('fasta.gz')
+        #set $ext = ".fasta.gz"
+    #end if
+    #set $name = "%s%s" % ($clean($identifier_or_name($ds)),$ext) 
+    #return $name
+#end def
+#set $i_name = None
+#set $f_name = None
+#set $l_name = None
+#set $t_name = None
     </token>
 
     <xml name="scan_input">
         <param argument="-i" type="data" format="imzml,mzml" label="Spectrum file, .mzml or .dia"/> 
     </xml>
     <token name="@LINK_SCAN_INPUT@"><![CDATA[
-    #set $i_name = $i.display_name
+    #set $i_name = $ln_name($i)
     ln -s '$i' '$i_name' &&
     ]]></token>
     <token name="@SCAN_INPUT@">
@@ -37,7 +92,7 @@
     #set $inputs_dir = 'inputs'
     mkdir -p $inputs_dir &&
     #for $sf in $i
-      #set $i_name = $sf.display_name
+      #set $i_name = $ln_name($sf)
       ln -s '$sf' '${inputs_dir}/${i_name}' &&
     #end for
     ]]></token>
@@ -49,7 +104,7 @@
         <param argument="-f" type="data" format="fasta" label="Background protein fasta database"/> 
     </xml>
     <token name="@LINK_FASTA_INPUT@"><![CDATA[
-    #set $f_name = $f.display_name
+    #set $f_name = $ln_name($f)
     ln -s '$f' '$f_name' &&
     ]]></token>
     <token name="@FASTA_INPUT@">
@@ -62,7 +117,7 @@
     </xml>
     <token name="@LINK_TARGET_FASTA@"><![CDATA[
     #if $t
-    #set $t_name = $t.display_name
+    #set $t_name = $ln_name($t)
     ln -s '$t' '$t_name' &&
     #else
     #set $t_name = None
@@ -75,103 +130,131 @@
     #end if
     </token>
 
-    <xml name="lib_input">
-        <param argument="-l" type="data" format="elib,dlib" label="Library: Chromatagram .ELIB or Spectrum .DLIB"/> 
+    <xml name="lib_input" token_optional="true" token_help="">
+        <param argument="-l" type="data" format="elib,dlib" optional="@OPTIONAL@" label="Library: Chromatagram .ELIB or Spectrum .DLIB"> 
+            <help>@HELP@</help>
+        </param>
     </xml>
     <token name="@LINK_LIB_INPUT@"><![CDATA[
-    #set $l_name = $l.display_name
+    #if $l
+    #set $l_name = $ln_name($l)
     cp '$l' $l_name &&
+    #else
+    #set $l_name = None
+    #end if
     ]]></token>
     <token name="@LIB_INPUT@">
+    #if $l_name
     -l '$l_name'
+    #end if
     </token>
 
     <xml name="common_options">
-        <section name="acquisition" expanded="true" title="Acquisition Options">
-        <param argument="-numberOfExtraDecoyLibrariesSearched" type="float" value="0.0" min="0.0" max="1.0" label="numberOfExtraDecoyLibrariesSearched"/>
-        <param argument="-acquisition" type="select" label="Data Acquization Type">
-            <option value="Non-Overlapping DIA">Non-Overlapping DIA</option>
-            <option value="Overlapping DIA">Overlapping DIA</option>
-        </param>
-        <param argument="-enzyme" type="select" label="Digestion Enzyme">
-             <option value="Trypsin">Trypsin</option>
-             <option value="Trypsin/p">Trypsin/p</option>
-             <option value="Lys-C">Lys-C</option>
-             <option value="Lys-N">Lys-N</option>
-             <option value="Arg-C">Arg-C</option>
-             <option value="Glu-C">Glu-C</option>
-             <option value="Chymotrypsin">Chymotrypsin</option>
-             <option value="Pepsin A">Pepsin A</option>
-             <option value="Elastase">Elastase</option>
-             <option value="Thermolysin">Thermolysin</option>
-             <option value="No Enzyme">No Enzyme</option>
-        </param>
-        <param argument="-frag" type="select" label="Fragmentation">
-            <option value="CID">CID/HCD (B/Y)</option>
-            <option value="HCD">HCD (Y-Only)</option>
-            <option value="ETD">ETD (C/Z/Z+1)</option>
-        </param>
-        </section>
+        <conditional name="acquisition">
+            <param name="set_acquisition" type="select" label="Set Acquisition Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param> 
+            <when value="no"/>
+            <when value="yes">
+                <param argument="-numberOfExtraDecoyLibrariesSearched" type="float" value="0.0" min="0.0" max="1.0" label="numberOfExtraDecoyLibrariesSearched"/>
+                <param argument="-acquisition" type="select" label="Data Acquization Type">
+                    <option value="Non-Overlapping DIA">Non-Overlapping DIA</option>
+                    <option value="Overlapping DIA">Overlapping DIA</option>
+                </param>
+                <param argument="-enzyme" type="select" label="Digestion Enzyme">
+                     <option value="Trypsin">Trypsin</option>
+                     <option value="Trypsin/p">Trypsin/p</option>
+                     <option value="Lys-C">Lys-C</option>
+                     <option value="Lys-N">Lys-N</option>
+                     <option value="Arg-C">Arg-C</option>
+                     <option value="Glu-C">Glu-C</option>
+                     <option value="Chymotrypsin">Chymotrypsin</option>
+                     <option value="Pepsin A">Pepsin A</option>
+                     <option value="Elastase">Elastase</option>
+                     <option value="Thermolysin">Thermolysin</option>
+                     <option value="No Enzyme">No Enzyme</option>
+                </param>
+                <param argument="-frag" type="select" label="Fragmentation">
+                    <option value="CID">CID/HCD (B/Y)</option>
+                    <option value="HCD">HCD (Y-Only)</option>
+                    <option value="ETD">ETD (C/Z/Z+1)</option>
+                </param>
+            </when>
+        </conditional>
     </xml>
     <token name="@COMMON_OPTIONS@">
+    #if $acquisition.set_acquisition == 'yes'
     -numberOfExtraDecoyLibrariesSearched $acquisition.numberOfExtraDecoyLibrariesSearched
     -acquisition '$acquisition.acquisition'
     -enzyme '$acquisition.enzyme'
     -frag '$acquisition.frag'
+    #end if
     </token>
 
     <xml name="mass_tolerance">
-        <section name="tolerance" expanded="true" title="Tolerance Options">
-        <conditional name="precursor_tolerance">
-            <param argument="-ptolunits" type="select" label="Precursor Mass Tolerance">
-                <option value="PPM">PPM</option>
-                <option value="AMU">AMU</option>
-                <option value="Resolution">Resolution</option>
-            </param>
-            <when value="PPM">
-                <param argument="-ptol" type="float" value="10" min="1.0" max="200.0" label="Precursor Mass Tolerance (PPM)"/>
-            </when>
-            <when value="AMU">
-                <param argument="-ptol" type="float" value=".4" min="1.0" max="1.0" label="Precursor Mass Tolerance (AMU)"/>
-            </when>
-            <when value="Resolution">
-                <param argument="-ptol" type="integer" value="15000" min="5000" max="300000" label="Precursor Mass Tolerance (Resolution)"/>
+        <conditional name="tolerance">
+            <param name="set_tolerance" type="select" label="Set Tolerance Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param> 
+            <when value="no"/>
+            <when value="yes">
+                <conditional name="precursor_tolerance">
+                    <param argument="-ptolunits" type="select" label="Precursor Mass Tolerance">
+                        <option value="PPM">PPM</option>
+                        <option value="AMU">AMU</option>
+                        <option value="Resolution">Resolution</option>
+                    </param>
+                    <when value="PPM">
+                        <param argument="-ptol" type="float" value="10" min="1.0" max="200.0" label="Precursor Mass Tolerance (PPM)"/>
+                    </when>
+                    <when value="AMU">
+                        <param argument="-ptol" type="float" value=".4" min="1.0" max="1.0" label="Precursor Mass Tolerance (AMU)"/>
+                    </when>
+                    <when value="Resolution">
+                        <param argument="-ptol" type="integer" value="15000" min="5000" max="300000" label="Precursor Mass Tolerance (Resolution)"/>
+                    </when>
+                </conditional>
+                <conditional name="fragment_tolerance">
+                    <param argument="-ftolunits" type="select" label="Fragment Mass Tolerance">
+                        <option value="PPM">PPM</option>
+                        <option value="AMU">AMU</option>
+                        <option value="Resolution">Resolution</option>
+                    </param>
+                    <when value="PPM">
+                        <param argument="-ftol" type="float" value="10" min="1.0" max="200.0" label="Fragment Mass Tolerance (PPM)"/>
+                    </when>
+                    <when value="AMU">
+                        <param argument="-ftol" type="float" value=".4" min="1.0" max="1.0" label="Fragment Mass Tolerance (AMU)"/>
+                    </when>
+                    <when value="Resolution">
+                        <param argument="-ftol" type="integer" value="15000" min="5000" max="300000" label="Fragment Mass Tolerance (Resolution)"/>
+                    </when>
+                </conditional>
+                <yield/>
             </when>
         </conditional>
-        <conditional name="fragment_tolerance">
-            <param argument="-ftolunits" type="select" label="Fragment Mass Tolerance">
-                <option value="PPM">PPM</option>
-                <option value="AMU">AMU</option>
-                <option value="Resolution">Resolution</option>
-            </param>
-            <when value="PPM">
-                <param argument="-ftol" type="float" value="10" min="1.0" max="200.0" label="Fragment Mass Tolerance (PPM)"/>
-            </when>
-            <when value="AMU">
-                <param argument="-ftol" type="float" value=".4" min="1.0" max="1.0" label="Fragment Mass Tolerance (AMU)"/>
-            </when>
-            <when value="Resolution">
-                <param argument="-ftol" type="integer" value="15000" min="5000" max="300000" label="Fragment Mass Tolerance (Resolution)"/>
-            </when>
-        </conditional>
-        <yield/>
-        </section>
     </xml>
     <token name="@MASS_TOLERANCE@">
+    #if $tolerance.set_tolerance == 'yes'
     -ptolunits $tolerance.precursor_tolerance.ptolunits
     -ptol $tolerance.precursor_tolerance.ptol
     -ftolunits $tolerance.fragment_tolerance.ftolunits
     -ftol $tolerance.fragment_tolerance.ftol
+    #end if
     </token>
 
     <xml name="mass_library_tolerance">
         <expand macro="mass_tolerance">
         <conditional name="library_tolerance">
             <param argument="-ltolunits" type="select" label="Library Mass Tolerance">
+                <option value="defaults">Use defaults</option>
                 <option value="PPM">PPM</option>
                 <option value="AMU">AMU</option>
                 <option value="Resolution">Resolution</option>
             </param>
+            <when value="defaults"/>
             <when value="PPM">
                 <param argument="-ltol" type="float" value="10" min="1.0" max="200.0" label="Library Mass Tolerance (PPM)"/>
             </when>
@@ -186,117 +269,166 @@
     </xml>
     <token name="@MASS_LIBRARY_TOLERANCE@">
     @MASS_TOLERANCE@
+    #if $tolerance.set_tolerance == 'yes' and $tolerance.library_tolerance.ltolunits != 'defaults'
     -ltolunits $tolerance.library_tolerance.ltolunits
     -ltol $tolerance.library_tolerance.ltol
+    #end if
     </token>
 
     <xml name="percolator_options">
-        <section name="percolator" expanded="false" title="Pecolator Options">
-            <param argument="-percolatorVersionNumber" type="integer" value="3" min="2" max="3" label="percolatorVersionNumber"/>
-            <param argument="-percolatorProteinThreshold" type="float" value="0.01" label="percolatorProteinThreshold"/>
-            <param argument="-percolatorThreshold" type="float" value="0.01" label="percolatorThreshold"/>
-        </section>
+        <conditional name="percolator">
+            <param name="set_percolator" type="select" label="Set Percolator Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="no"/>
+            <when value="yes">
+                <param argument="-percolatorVersionNumber" type="integer" value="3" min="2" max="3" label="percolatorVersionNumber"/>
+                <param argument="-percolatorProteinThreshold" type="float" value="0.01" label="percolatorProteinThreshold"/>
+                <param argument="-percolatorThreshold" type="float" value="0.01" label="percolatorThreshold"/>
+            </when>
+        </conditional>
     </xml>
     <token name="@PERCOLATOR_OPTIONS@">
-    #if str($percolator.percolatorVersionNumber)
-        -percolatorVersionNumber $percolator.percolatorVersionNumber
-    #end if
-    #if str($percolator.percolatorProteinThreshold)
-        -percolatorProteinThreshold $percolator.percolatorProteinThreshold
-    #end if
-    #if str($percolator.percolatorThreshold)
-        -percolatorThreshold $percolator.percolatorThreshold
+    #if $percolator.set_percolator == 'yes'
+        #if str($percolator.percolatorVersionNumber)
+            -percolatorVersionNumber $percolator.percolatorVersionNumber
+        #end if
+        #if str($percolator.percolatorProteinThreshold)
+            -percolatorProteinThreshold $percolator.percolatorProteinThreshold
+        #end if
+        #if str($percolator.percolatorThreshold)
+            -percolatorThreshold $percolator.percolatorThreshold
+        #end if
     #end if
     </token>
 
     <xml name="peak_options">
-        <section name="peak" expanded="false" title="Peak Options">
-            <param argument="-numberOfQuantitativePeaks" type="integer" value="5" min="1" max="100" label="Number of Quantitative Peaks"/>
-            <param argument="-minNumOfQuantitativePeaks" type="integer" value="3" min="0" max="100" label="Minimum Number of Quantitative Peaks"/>
-            <param argument="-minQuantitativeIonNumber" type="integer" value="3" min="0" max="100" label="Minimum Number of Quantitative Ions"/>
-            <param argument="-minIntensity" type="float" value="-1.0" label="minIntensity"/>
-            <param argument="-expectedPeakWidth" type="float" value="25.0" min="1" max="100.0" label="Expected Peak Width"/>
-            <param argument="-filterPeaklists" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Filter Peak Lists"/>
-        </section>
+        <conditional name="peak">
+            <param name="set_peak" type="select" label="Set Peak Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="no"/>
+            <when value="yes">
+                <param argument="-numberOfQuantitativePeaks" type="integer" value="5" min="1" max="100" label="Number of Quantitative Peaks"/>
+                <param argument="-minNumOfQuantitativePeaks" type="integer" value="3" min="0" max="100" label="Minimum Number of Quantitative Peaks"/>
+                <param argument="-minQuantitativeIonNumber" type="integer" value="3" min="0" max="100" label="Minimum Number of Quantitative Ions"/>
+                <param argument="-minIntensity" type="float" value="-1.0" label="minIntensity"/>
+                <param argument="-expectedPeakWidth" type="float" value="25.0" min="1" max="100.0" label="Expected Peak Width"/>
+                <param argument="-filterPeaklists" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Filter Peak Lists"/>
+            </when>
+        </conditional>
     </xml>
     <token name="@PEAK_OPTIONS@">
-    #if str($peak.numberOfQuantitativePeaks)
-        -numberOfQuantitativePeaks $peak.numberOfQuantitativePeaks
+    #if $peak.set_peak == 'yes'
+        #if str($peak.numberOfQuantitativePeaks)
+            -numberOfQuantitativePeaks $peak.numberOfQuantitativePeaks
+        #end if
+        #if str($peak.minNumOfQuantitativePeaks)
+            -minNumOfQuantitativePeaks $peak.minNumOfQuantitativePeaks
+        #end if
+        #if str($peak.minQuantitativeIonNumber)
+            -minQuantitativeIonNumber $peak.minQuantitativeIonNumber
+        #end if
+        #if str($peak.minIntensity)
+            -minIntensity $peak.minIntensity
+        #end if
+        #if str($peak.expectedPeakWidth)
+            -expectedPeakWidth $peak.expectedPeakWidth
+        #end if
+        -filterPeaklists $peak.filterPeaklists
     #end if
-    #if str($peak.minNumOfQuantitativePeaks)
-        -minNumOfQuantitativePeaks $peak.minNumOfQuantitativePeaks
-    #end if
-    #if str($peak.minQuantitativeIonNumber)
-        -minQuantitativeIonNumber $peak.minQuantitativeIonNumber
-    #end if
-    #if str($peak.minIntensity)
-        -minIntensity $peak.minIntensity
-    #end if
-    #if str($peak.expectedPeakWidth)
-        -expectedPeakWidth $peak.expectedPeakWidth
-    #end if
-    -filterPeaklists $peak.filterPeaklists
     </token>
 
     <xml name="window_options">
-        <section name="window" expanded="false" title="Window Options">
-        <param argument="-foffset" type="integer" value="0" label="fragmentOffsetPPM"/>
-        <param argument="-poffset" type="integer" value="0" label="Precursor Offset PPM" help="-poffset"/>
-        <param argument="-precursorIsolationMargin" type="integer" value="0" label="precursorIsolationMargin"/>
-        <param argument="-precursorWindowSize" type="integer" value="-1" label="precursorWindowSize"/>
-        <param argument="-rtWindowInMin" type="float" value="-1.0" label="rtWindowInMin"/>
-        <param argument="-scoringBreadthType" type="select" label="scoringBreadthType">
-            <option value="window">Across entire window</option>
-            <option value="recal20">Recalibrated (20% gradient)</option>
-            <option value="recal">Recalibrated (peak width only)</option>
-            <option value="uncal20">Uncalibrated (20% gradient)</option>
-            <option value="uncal">Uncalibrated (peak width only)</option>
-        </param>
-        </section>
+        <conditional name="window">
+            <param name="set_window" type="select" label="Set Window Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="no"/>
+            <when value="yes">
+                <param argument="-foffset" type="integer" value="0" label="fragmentOffsetPPM"/>
+                <param argument="-poffset" type="integer" value="0" label="Precursor Offset PPM" help="-poffset"/>
+                <param argument="-precursorIsolationMargin" type="integer" value="0" label="precursorIsolationMargin"/>
+                <param argument="-precursorWindowSize" type="integer" value="-1" label="precursorWindowSize"/>
+                <param argument="-rtWindowInMin" type="float" value="-1.0" label="rtWindowInMin"/>
+                <param argument="-scoringBreadthType" type="select" label="scoringBreadthType">
+                    <option value="window">Across entire window</option>
+                    <option value="recal20">Recalibrated (20% gradient)</option>
+                    <option value="recal">Recalibrated (peak width only)</option>
+                    <option value="uncal20">Uncalibrated (20% gradient)</option>
+                    <option value="uncal">Uncalibrated (peak width only)</option>
+                </param>
+            </when>
+        </conditional>
     </xml>
     <token name="@WINDOW_OPTIONS@">
+    #if $window.set_window == 'yes' 
         -foffset $window.foffset
         -poffset $window.poffset
         -precursorIsolationMargin $window.precursorIsolationMargin
         -precursorWindowSize $window.precursorWindowSize
         -rtWindowInMin $window.rtWindowInMin
         -scoringBreadthType $window.scoringBreadthType
+    #end if
     </token>
 
     <xml name="modification_options">
-        <section name="modifications" expanded="false" title="Modification Options">
-        <param argument="-fixed" type="select" label="Fixed Modification">
-            <option value="C=57.0214635">C=57.0214635</option>
-        </param>
-        <!--
-        <param argument="-localizationModification" type="select" optional="true" label="localizationModification">
-        </param>
-        -->
-        <param argument="-verifyModificationIons" type="boolean" truevalue="true" falsevalue="false" checked="true" label="verifyModificationIons"/>
-        </section>
+        <conditional name="modifications">
+            <param name="set_modifications" type="select" label="Set Modifications Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="no"/>
+            <when value="yes">
+                <param argument="-fixed" type="select" optional="true" label="Fixed Modification">
+                    <option value="C=57.0214635">C=57.0214635</option>
+                </param>
+                <!--
+                <param argument="-localizationModification" type="select" optional="true" label="localizationModification">
+                </param>
+                -->
+                <param argument="-verifyModificationIons" type="boolean" truevalue="true" falsevalue="false" checked="true" label="verifyModificationIons"/>
+            </when>
+        </conditional>
     </xml>
     <token name="@MODIFICATION_OPTIONS@">
+    #if $modifications.set_modifications == 'yes'
+        #if $modifications.fixed
+            -fixed $modifications.fixed
+        #end if
         -verifyModificationIons $modifications.verifyModificationIons
+    #end if
     </token>
 
     <xml name="search_options">
-        <section name="search" expanded="false" title="Search Options">
-        <param argument="-minCharge" type="integer" value="2" min="1" max="10" label="minCharge" optional="true"/>
-        <param argument="-maxCharge" type="integer" value="3" min="1" max="10" label="maxCharge" optional="true"/>
-        <param argument="-minLength" type="integer" value="5" min="1" max="100" label="minLength" optional="true"/>
-        <param argument="-maxLength" type="integer" value="100" min="10" max="200" label="maxLength" optional="true"/>
-        <param argument="-minEluteTime" type="integer" value="12" min="1" max="69" label="minEluteTime" optional="true"/>
-        <param argument="-maxMissedCleavage" type="integer" value="1" min="0" max="5" label="maxMissedCleavage" optional="true"/>
-        <param argument="-minQuantitativeIonNumber" type="integer" value="3" min="1" max="10" label="minQuantitativeIonNumber" optional="true"/>
-        <param argument="-minNumOfQuantitativePeaks" type="integer" value="3" min="1" max="10" label="minNumOfQuantitativePeaks" optional="true"/>
-        <param argument="-numberOfQuantitativePeaks" type="integer" value="3" min="1" max="10" label="numberOfQuantitativePeaks" optional="true"/>
-        <param argument="-alpha" type="float" value="1.8" min="0.0" max="5.0" label="alpha"/>
-        <param argument="-beta" type="float" value="0.4" min="0.0" max="5.0" label="beta"/>
-        <param argument="-addDecoysToBackground" type="boolean" truevalue="true" falsevalue="false" checked="false" label="addDecoysToBackground"/>
-        <param argument="-dontRunDecoys" type="boolean" truevalue="true" falsevalue="false" checked="false" label="dontRunDecoys"/>
-        </section>
+        <conditional name="search">
+            <param name="set_search" type="select" label="Set Search Options">
+                <option value="no">No - use default options</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="no"/>
+            <when value="yes">
+                <param argument="-minCharge" type="integer" value="2" min="1" max="10" label="minCharge" optional="true"/>
+                <param argument="-maxCharge" type="integer" value="3" min="1" max="10" label="maxCharge" optional="true"/>
+                <param argument="-minLength" type="integer" value="5" min="1" max="100" label="minLength" optional="true"/>
+                <param argument="-maxLength" type="integer" value="100" min="10" max="200" label="maxLength" optional="true"/>
+                <param argument="-minEluteTime" type="integer" value="12" min="1" max="69" label="minEluteTime" optional="true"/>
+                <param argument="-maxMissedCleavage" type="integer" value="1" min="0" max="5" label="maxMissedCleavage" optional="true"/>
+                <param argument="-minQuantitativeIonNumber" type="integer" value="3" min="1" max="10" label="minQuantitativeIonNumber" optional="true"/>
+                <param argument="-minNumOfQuantitativePeaks" type="integer" value="3" min="1" max="10" label="minNumOfQuantitativePeaks" optional="true"/>
+                <param argument="-numberOfQuantitativePeaks" type="integer" value="3" min="1" max="10" label="numberOfQuantitativePeaks" optional="true"/>
+                <param argument="-alpha" type="float" value="1.8" min="0.0" max="5.0" label="alpha"/>
+                <param argument="-beta" type="float" value="0.4" min="0.0" max="5.0" label="beta"/>
+                <param argument="-addDecoysToBackground" type="boolean" truevalue="true" falsevalue="false" checked="false" label="addDecoysToBackground"/>
+                <param argument="-dontRunDecoys" type="boolean" truevalue="true" falsevalue="false" checked="false" label="dontRunDecoys"/>
+            </when>
+        </conditional>
     </xml>
     <token name="@SEARCH_OPTIONS@">
+    #if $search.set_search == 'yes'
         -minCharge $search.minCharge
         -maxCharge $search.maxCharge
         -minLength $search.minLength
@@ -310,9 +442,10 @@
         -beta $search.beta
         -addDecoysToBackground $search.addDecoysToBackground
         -dontRunDecoys $search.dontRunDecoys
+    #end if
     </token>
-minNumOfQuantitativePeaks minQuantitativeIonNumber numberOfQuantitativePeaks numberOfReportedPeaksu
     <!--
+minNumOfQuantitativePeaks minQuantitativeIonNumber numberOfQuantitativePeaks numberOfReportedPeaksu
 	+acquisition                (default: overlapping dia)
 	+addDecoysToBackground      (default: false)
 	+alpha                      (default: 1.8)
@@ -349,7 +482,7 @@ minNumOfQuantitativePeaks minQuantitativeIonNumber numberOfQuantitativePeaks num
 	-variable                   (default: -)
    --> 
     <xml name="libexport">
-        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="true" label="align between files"/>
+        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files"/>
     </xml>
 </macros>
 <!--
