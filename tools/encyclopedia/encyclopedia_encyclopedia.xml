@@ -1,5 +1,5 @@
-<tool id="encyclopedia" name="EncyclopeDIA" version="@VERSION@.0">
-    <description>Mass Spec DIA data analysis</description>
+<tool id="encyclopedia_encyclopedia" name="EncyclopeDIA" version="@VERSION@.0">
+    <description>Library Searching Directly from Data-Independent Acquisition (DIA) MS/MS Data</description>
     <macros>
         <import>macros.xml</import>
     </macros>
