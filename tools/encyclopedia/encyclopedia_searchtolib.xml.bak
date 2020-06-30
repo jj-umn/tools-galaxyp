@@ -1,5 +1,5 @@
 <tool id="encyclopedia_searchtolib" name="SearchToLib" version="@VERSION@.0">
-    <description>Build a Chromatogram Library from Data-Independent Acquisition (DIA) MS/MS Data</description>
+    <description>Build a Chromatogram Library or quantify samples from Data-Independent Acquisition (DIA) MS/MS Data</description>
     <macros>
         <import>macros.xml</import>
     </macros>
@@ -42,10 +42,10 @@
     ]]></command>
     <inputs>
         <expand macro="scan_inputs"/>
-        <expand macro="lib_input" optional="true" libhelp="Use a Prosit dlib spectral library to make a chromatogram elib using EncyclopeDIA, or else leave blank to make a Chromatogram library from just the fasta using Walnut"/>
+        <expand macro="lib_input" optional="true" libhelp="Use a Chromatogram elib for quantification, or a Prosit dlib spectral library to make a chromatogram elib using EncyclopeDIA, or else leave blank to make a Chromatogram library from just the fasta using Walnut"/>
         <expand macro="fasta_input"/>
         <expand macro="target_fasta"/>
-        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files" help="retention-time alignment of peptides is generally not needed when using narrow-window spectrums"/>
+        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files" help="retention-time alignment of peptides should be enabled when quantifying samples"/>
         <expand macro="common_options"/>
         <expand macro="mass_library_tolerance"/>
         <expand macro="percolator_options"/>
@@ -56,13 +56,11 @@
         <param name="select_outputs" type="select" label="Select outputs" multiple="true">
             <option value="log" selected="true">log</option>
             <option value="elib" selected="true">elib</option>
-            <option value="features" selected="false">concatenated_features.txt</option>
-            <option value="results" selected="false">concatenated_results.txt</option>
+            <option value="features" selected="true">concatenated_features.txt</option>
+            <option value="results" selected="true">concatenated_results.txt</option>
             <option value="decoy" selected="false">concatenated_decoy.txt</option>
-            <!--
-            <option value="peptides" selected="false">peptides.txt (requires align between files)</option>
-            <option value="proteins" selected="false">proteins.txt (requires align between files)</option>
-            -->
+            <option value="peptides" selected="true">peptides.txt (requires match between runs)</option>
+            <option value="proteins" selected="true">proteins.txt (requires match between runs)</option>
         </param>
     </inputs>
     <outputs>
@@ -90,7 +88,6 @@
                 <action name="column_names" type="metadata" default="PSMId,score,q-value,posterior_error_prob,peptide,proteinIds" />
             </actions>
         </data>
-        <!--
         <data name="peptides" format="tabular" label="${tool.name} ${on_string} peptides.txt" from_work_dir="chromatogram_library.peptides.txt">
             <filter>a and 'peptides' in select_outputs</filter>
             <actions>
@@ -103,7 +100,6 @@
                 <action name="column_names" type="metadata" default="Protein,NumPeptides,PeptideSequences" />
             </actions>
         </data>
-        -->
     </outputs>
     <help><![CDATA[
 
@@ -117,7 +113,7 @@ SearchToLIB can also quantify peptides from the chromatogram library.
 
 @MSCONVERT_HELP@
 
-**Typical DIA Workflow**
+**Typical DIA SearchToLib Workflow**
 
 Two sets of Mass Spec MS/MS DIA data are collected for the experiment.  In addition to collecting wide-window DIA experiments on each quantitative replicate, a pool containing peptides from every condition is measured using several staggered narrow-window DIA experiments.
 
@@ -129,7 +125,7 @@ Two sets of Mass Spec MS/MS DIA data are collected for the experiment.  In addit
        * Prosit_ generates a predicted spectrum library of fragmentation patterns and retention times for every +2H and +3H tryptic peptide in a FASTA database, with up to one missed cleavage.
 
 
-  2. EncyclopeDIA Quantify is then run on the wide-window quantitative replicate mzML files using that chromatogram library to produce quantification results.
+  2. SearchToLib is then run on the wide-window quantitative replicate mzML files using that chromatogram library, with the *align between files* option, to produce quantification results.
 
 .. image:: SearchToLib_Workflow.png
   :height: 439
