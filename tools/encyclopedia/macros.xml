@@ -30,11 +30,17 @@ done
             <yield/>
         </requirements>
     </xml>
+    <token name="@ENCYCLOPEDIA_WIKI@">
+EncyclopeDIA_ is library search engine comprised of several algorithms for DIA data analysis and can search for peptides using either DDA-based spectrum libraries or DIA-based chromatogram libraries. 
+
+.. _EncyclopeDIA: https://bitbucket.org/searleb/encyclopedia/wiki/Home
+    </token>
     <xml name="citations">
         <citations>
             <citation type="doi">10.1038/s41467-018-07454-w</citation>
             <citation type="doi">10.1038/s41467-020-15346-1</citation>
-            <yield />
+            <citation type="doi">10.1074/mcp.P119.001913</citation>
+            <yield/>
         </citations>
     </xml>
     <token name="@CMD_IMPORTS@">
@@ -77,7 +83,9 @@ done
     </token>
 
     <xml name="scan_input">
-        <param argument="-i" type="data" format="imzml,mzml" label="Spectrum file, .mzml or .dia"/> 
+        <param argument="-i" type="data" format="imzml,mzml" label="Spectrum file in mzML format"> 
+            <help>@MSCONVERT_RAW@</help>
+        </param>
     </xml>
     <token name="@LINK_SCAN_INPUT@"><![CDATA[
     #set $i_name = $ln_name($i)
@@ -88,7 +96,9 @@ done
     </token>
 
     <xml name="scan_inputs">
-        <param argument="-i" type="data" format="imzml,mzml" multiple="true" label="Spectrum file, .mzml or .dia"/> 
+        <param argument="-i" type="data" format="imzml,mzml" multiple="true" label="Spectrum files in  mzML format">
+            <help>@MSCONVERT_RAW@</help>
+        </param>
     </xml>
     <token name="@LINK_SCAN_INPUTS@"><![CDATA[
     #set $inputs_dir = 'inputs'
@@ -103,7 +113,9 @@ done
     </token>
 
     <xml name="fasta_input">
-        <param argument="-f" type="data" format="fasta" label="Background protein fasta database"/> 
+        <param argument="-f" type="data" format="fasta" label="Background proteome protein fasta database"> 
+            <help>provides the necessary peptide-to-protein links not specified in the spectrum library</help>
+        </param>
     </xml>
     <token name="@LINK_FASTA_INPUT@"><![CDATA[
     #set $f_name = $ln_name($f)
@@ -114,7 +126,7 @@ done
     </token>
 
     <xml name="target_fasta">
-        <param argument="-t" type="data" format="fasta" label="target FASTA file" optional="true"/> 
+        <param argument="-t" type="data" format="fasta" label="Target fasta database" optional="true"/> 
         <param argument="-tp" type="boolean" truevalue="true" falsevalue="false" checked="false" label="target FASTA file contains peptides"/>
     </xml>
     <token name="@LINK_TARGET_FASTA@"><![CDATA[
@@ -132,9 +144,9 @@ done
     #end if
     </token>
 
-    <xml name="lib_input" token_optional="true" token_help="">
+    <xml name="lib_input" token_optional="true" token_libhelp="">
         <param argument="-l" type="data" format="elib,dlib" optional="@OPTIONAL@" label="Library: Chromatagram .ELIB or Spectrum .DLIB"> 
-            <help>@HELP@</help>
+            <help>@LIBHELP@</help>
         </param>
     </xml>
     <token name="@LINK_LIB_INPUT@"><![CDATA[
@@ -484,106 +496,25 @@ done
         ## -dontRunDecoys $search.dontRunDecoys
     #end if
     </token>
-    <!--
-minNumOfQuantitativePeaks minQuantitativeIonNumber numberOfQuantitativePeaks numberOfReportedPeaksu
-	+acquisition                (default: overlapping dia)
-	+addDecoysToBackground      (default: false)
-	+alpha                      (default: 1.8)
-	+beta                       (default: 0.4)
-	+dontRunDecoys              (default: false)
-	+enzyme                     (default: trypsin)
-	+filterPeaklists            (default: false)
-	+fixed                      (default: C=57.0214635)
-	+foffset                    (default: 0)
-	=frag                       (default: YONLY)
-	+ftol                       (default: 10)
-	+ftolunits                  (default: ppm)
-	+maxCharge                  (default: 3)
-	+ftolunits                  (default: ppm)
-	+maxCharge                  (default: 3)
-	+maxLength                  (default: 100)
-	+maxMissedCleavage          (default: 1)
-	+minCharge                  (default: 2)
-	+minEluteTime               (default: 12)
-	+minIntensity               (default: -1.0)
-	+minLength                  (default: 5)
-	+minNumOfQuantitativePeaks  (default: 3)
-	+minQuantitativeIonNumber   (default: 3)
-	+numberOfQuantitativePeaks  (default: 5)
-	-numberOfReportedPeaks      (default: 1)
-	-numberOfThreadsUsed        (default: 12)
-	+percolatorProteinThreshol  (default: 0.01)
-	+percolatorThreshold        (default: 0.01)
-	+percolatorVersionNumber    (default: 3)
-	+poffset                    (default: 0)
-	+precursorIsolationMargin   (default: 0)
-	+precursorWindowSize        (default: -1)
-	+ptol                       (default: 10)
-	+ptolunits                  (default: ppm)
-	-requireVariableMods        (default: false)
-	-variable                   (default: -)
-   --> 
     <xml name="libexport">
         <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files"/>
     </xml>
+    <token name="@MSCONVERT_CMD@"><![CDATA[
+      msconvert  --zlib --64 --mzML --simAsSpectra --filter "peakPicking true 1-" --filter "demultiplex optimization=overlap_only" *.raw
+]]>
+    </token>
+    <token name="@MSCONVERT_RAW@"><![CDATA[
+mzML conversion from RAW requires special options: @MSCONVERT_CMD@
+]]>
+    </token>
+    <token name="@MSCONVERT_HELP@"><![CDATA[
+
+    The MSConvert command can be used to deconvolute DIA raw files. You need to use these options
+
+    ::
+
+      @MSCONVERT_CMD@
+
+]]>
+    </token>
 </macros>
-<!--
-e w t x l	param
-+:+:+:+:+	i
-+:+:+:+:+	l
-+:+:+:+:+	f
-
-+:+:+:+:+	t
--:+:-:+:-	tp
--:+:-:+:+	a
-
-+:+:+:+:+	o
-
-+:+:+:+:-	acquisition
--:+:-:+:-	addDecoysToBackground
--:+:-:+:-	alpha
--:+:-:+:-	beta
--:-:-:-:+	blib
--:+:-:+:-	dontRunDecoys
-+:+:+:+:-	enzyme
-+:-:+:-:-	expectedPeakWidth
-+:+:+:+:-	filterPeaklists
-+:+:+:+:+	fixed
-+:+:+:+:+	foffset
-+:+:+:+:-	frag
-+:+:+:+:+	ftol
-+:+:+:+:+	ftolunits
-+:-:+:-:-	lftol
-+:-:+:-:-	lftolunits
-+:-:-:-:-	libexport
-+:-:+:-:+	localizationModification
--:+:-:+:-	maxCharge
--:+:-:+:-	maxLength
--:+:-:+:-	maxMissedCleavage
--:+:-:+:-	minCharge
--:+:-:+:-	minEluteTime
-+:+:+:+:-	minIntensity
--:+:-:+:-	minLength
-+:+:+:+:+	minNumOfQuantitativePeaks
-+:+:+:+:+	minQuantitativeIonNumber
-+:-:+:-:+	numberOfExtraDecoyLibrariesSearched
-+:+:+:+:+	numberOfQuantitativePeaks
--:+:-:+:-	numberOfReportedPeaks
--:+:-:+:-	numberOfThreadsUsed
--:-:-:-:+	percolatorLocation
--:+:-:+:-	percolatorProteinThreshol
-+:-:+:-:+	percolatorProteinThreshold
-+:+:+:+:+	percolatorThreshold
-+:+:+:+:-	percolatorVersionNumber
--:-:-:-:+	phospho
-+:+:+:+:-	poffset
-+:+:+:+:-	precursorIsolationMargin
-+:+:+:+:-	precursorWindowSize
-+:+:+:+:-	ptol
-+:+:+:+:-	ptolunits
--:+:-:+:-	requireVariableMods
-+:-:+:-:-	rtWindowInMin
-+:-:+:-:-	scoringBreadthType
--:+:-:+:-	variable
-+:-:+:-:-	verifyModificationIons
--->

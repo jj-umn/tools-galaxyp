@@ -1,9 +1,9 @@
 name: encyclopedia
-owner: galaxyp
+owner: jjohnson
 categories:
 - Proteomics
 type: unrestricted
-description: Mass Spec DIA ananysis
+description: Mass Spec Data-Independent Acquisition (DIA) MS/MS analysis
 long_description: |
   EncyclopeDIA is comprised of several algorithms for analysis of
   Data Independent Acquisition (DIA) Mass Spectrometry data.
