@@ -25,12 +25,7 @@
         <expand macro="scan_input"/>
         <expand macro="fasta_input"/>
         <expand macro="lib_input" optional="false" libhelp="Chromatogram elib from SearchToLib on pooled samples"/>
-        <expand macro="common_options"/>
-        <expand macro="mass_library_tolerance"/>
-        <expand macro="percolator_options"/>
-        <expand macro="peak_options"/>
-        <expand macro="window_options"/>
-        <expand macro="modification_options"/>
+        <expand macro="options_section"/>
         <param name="select_outputs" type="select" label="Select outputs" multiple="true">
             <option value="log" selected="true">log</option>
             <option value="elib" selected="true">elib</option>

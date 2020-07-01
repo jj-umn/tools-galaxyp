@@ -39,14 +39,8 @@
         <expand macro="lib_input" optional="false" libhelp="Use a Chromatogram elib from SearchToLib"/>
         <expand macro="fasta_input"/>
         <expand macro="target_fasta"/>
+        <expand macro="options_section"/>
         <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="true" label="align between files" help="retention-time alignment of peptides should be enabled when quantifying samples"/>
-        <expand macro="common_options"/>
-        <expand macro="mass_library_tolerance"/>
-        <expand macro="percolator_options"/>
-        <expand macro="peak_options"/>
-        <expand macro="window_options"/>
-        <expand macro="modification_options"/>
-        <expand macro="search_options"/>
         <param name="select_outputs" type="select" label="Select outputs" multiple="true">
             <option value="log" selected="true">log</option>
             <option value="elib" selected="true">elib</option>
@@ -120,8 +114,8 @@ Two sets of Mass Spec MS/MS DIA data are collected for the experiment.  In addit
   2. EncyclopeDIA Quantify is then run on the wide-window quantitative replicate mzML files using that chromatogram library, with the *align between files* option, to produce quantification results.
 
 .. image:: SearchToLib_Workflow.png
-  :height: 439
-  :width: 768
+  :width: 810
+  :height: 580
 
 .. _Prosit: https://www.proteomicsdb.org/prosit
 

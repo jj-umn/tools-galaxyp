@@ -45,14 +45,8 @@
         <expand macro="lib_input" optional="true" libhelp="Use a Prosit dlib spectral library to make a chromatogram elib using EncyclopeDIA, or else leave blank to make a Chromatogram library from just the fasta using Walnut"/>
         <expand macro="fasta_input"/>
         <expand macro="target_fasta"/>
-        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files" help="retention-time alignment of peptides is generally not needed when using narrow-window spectrums"/>
-        <expand macro="common_options"/>
-        <expand macro="mass_library_tolerance"/>
-        <expand macro="percolator_options"/>
-        <expand macro="peak_options"/>
-        <expand macro="window_options"/>
-        <expand macro="modification_options"/>
-        <expand macro="search_options"/>
+        <expand macro="options_section"/>
+        <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files" help="retention-time alignment of peptides is generally not needed when when building a library from narrow-window spectrums"/>
         <param name="select_outputs" type="select" label="Select outputs" multiple="true">
             <option value="log" selected="true">log</option>
             <option value="elib" selected="true">elib</option>
@@ -132,8 +126,8 @@ Two sets of Mass Spec MS/MS DIA data are collected for the experiment.  In addit
   2. EncyclopeDIA Quantify is then run on the wide-window quantitative replicate mzML files using that chromatogram library to produce quantification results.
 
 .. image:: SearchToLib_Workflow.png
-  :height: 439
-  :width: 768
+  :width: 810
+  :height: 580
 
 .. _Prosit: https://www.proteomicsdb.org/prosit
 

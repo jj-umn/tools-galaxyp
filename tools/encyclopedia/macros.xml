@@ -1,28 +1,4 @@
 <macros>
-<!--
-# generate a Walnut CLIB from GPF-DIA and a FASTA
-for i in library/*.mzML; do 
-    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -walnut -i $i -f uniprot_yeast_25jan2019.fasta; 
-done
-java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -libexport -walnut -o chromatogram_library.elib -i library -f uniprot_yeast_25jan2019.fasta -a false;
-
-# process single-injection DIA with the CLIB
-for i in quant/*.mzML; do 
-    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -i $i -l chromatogram_library.elib -f uniprot_yeast_25jan2019.fasta;
-done
-
-Next for Prosit:
-# generate an EncyclopeDIA CLIB from GPF-DIA and a Prosit Library
-for i in library/*.mzML; do 
-    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -i $i -l prosit_library.dlib -f uniprot_yeast_25jan2019.fasta; 
-done
-java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -libexport -o chromatogram_library.elib -i library -f uniprot_yeast_25jan2019.fasta -a false;
-
-# process single-injection DIA with the CLIB (exactly the same as with Walnut)
-for i in quant/*.mzML; do 
-    java -Xmx20g -jar encyclopedia-0.9.0-executable.jar -i $i -l chromatogram_library.elib -f uniprot_yeast_25jan2019.fasta;
-done
--->
     <token name="@VERSION@">0.9.5</token>
     <xml name="requirements">
         <requirements>
@@ -30,6 +6,7 @@ done
             <yield/>
         </requirements>
     </xml>
+
     <token name="@ENCYCLOPEDIA_WIKI@">
 EncyclopeDIA_ is library search engine comprised of several algorithms for DIA data analysis and can search for peptides using either DDA-based spectrum libraries or DIA-based chromatogram libraries. 
 
@@ -43,6 +20,7 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
             <yield/>
         </citations>
     </xml>
+
     <token name="@CMD_IMPORTS@">
 #import re
 #def identifier_or_name($input1)
@@ -207,16 +185,16 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
                                token_cid_selected="false" token_hcd_selected="true"/>
     </xml>
     <token name="@COMMON_OPTIONS@">
-    #if $acquisition.set_acquisition == 'yes'
-      -numberOfExtraDecoyLibrariesSearched $acquisition.numberOfExtraDecoyLibrariesSearched
-      #if $acquisition.acquisition 
-        -acquisition '$acquisition.acquisition'
+    #if $options.acquisition.set_acquisition == 'yes'
+      -numberOfExtraDecoyLibrariesSearched $options.acquisition.numberOfExtraDecoyLibrariesSearched
+      #if $options.acquisition.acquisition 
+        -acquisition '$options.acquisition.acquisition'
       #end if
-      #if $acquisition.enzyme:
-        -enzyme '$acquisition.enzyme'
+      #if $options.acquisition.enzyme:
+        -enzyme '$options.acquisition.enzyme'
       #end if
-      #if $acquisition.frag:
-        -frag '$acquisition.frag'
+      #if $options.acquisition.frag:
+        -frag '$options.acquisition.frag'
       #end if
     #end if
     </token>
@@ -266,11 +244,11 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
         </conditional>
     </xml>
     <token name="@MASS_TOLERANCE@">
-    #if $tolerance.set_tolerance == 'yes'
-    -ptolunits $tolerance.precursor_tolerance.ptolunits
-    -ptol $tolerance.precursor_tolerance.ptol
-    -ftolunits $tolerance.fragment_tolerance.ftolunits
-    -ftol $tolerance.fragment_tolerance.ftol
+    #if $options.tolerance.set_tolerance == 'yes'
+    -ptolunits $options.tolerance.precursor_tolerance.ptolunits
+    -ptol $options.tolerance.precursor_tolerance.ptol
+    -ftolunits $options.tolerance.fragment_tolerance.ftolunits
+    -ftol $options.tolerance.fragment_tolerance.ftol
     #end if
     </token>
 
@@ -298,9 +276,9 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     </xml>
     <token name="@MASS_LIBRARY_TOLERANCE@">
     @MASS_TOLERANCE@
-    #if $tolerance.set_tolerance == 'yes' and $tolerance.library_tolerance.ltolunits != 'defaults'
-    -ltolunits $tolerance.library_tolerance.ltolunits
-    -ltol $tolerance.library_tolerance.ltol
+    #if $options.tolerance.set_tolerance == 'yes' and $options.tolerance.library_tolerance.ltolunits != 'defaults'
+    -ltolunits $options.tolerance.library_tolerance.ltolunits
+    -ltol $options.tolerance.library_tolerance.ltol
     #end if
     </token>
 
@@ -319,15 +297,15 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
         </conditional>
     </xml>
     <token name="@PERCOLATOR_OPTIONS@">
-    #if $percolator.set_percolator == 'yes'
-        #if str($percolator.percolatorVersionNumber)
-            -percolatorVersionNumber $percolator.percolatorVersionNumber
+    #if $options.percolator.set_percolator == 'yes'
+        #if str($options.percolator.percolatorVersionNumber)
+            -percolatorVersionNumber $options.percolator.percolatorVersionNumber
         #end if
-        #if str($percolator.percolatorProteinThreshold)
-            -percolatorProteinThreshold $percolator.percolatorProteinThreshold
+        #if str($options.percolator.percolatorProteinThreshold)
+            -percolatorProteinThreshold $options.percolator.percolatorProteinThreshold
         #end if
-        #if str($percolator.percolatorThreshold)
-            -percolatorThreshold $percolator.percolatorThreshold
+        #if str($options.percolator.percolatorThreshold)
+            -percolatorThreshold $options.percolator.percolatorThreshold
         #end if
     #end if
     </token>
@@ -353,24 +331,24 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
         </conditional>
     </xml>
     <token name="@PEAK_OPTIONS@">
-    #if $peak.set_peak == 'yes'
-        #if str($peak.numberOfQuantitativePeaks)
-            -numberOfQuantitativePeaks $peak.numberOfQuantitativePeaks
+    #if $options.peak.set_peak == 'yes'
+        #if str($options.peak.numberOfQuantitativePeaks)
+            -numberOfQuantitativePeaks $options.peak.numberOfQuantitativePeaks
         #end if
-        #if str($peak.minNumOfQuantitativePeaks)
-            -minNumOfQuantitativePeaks $peak.minNumOfQuantitativePeaks
+        #if str($options.peak.minNumOfQuantitativePeaks)
+            -minNumOfQuantitativePeaks $options.peak.minNumOfQuantitativePeaks
         #end if
-        #if str($peak.minQuantitativeIonNumber)
-            -minQuantitativeIonNumber $peak.minQuantitativeIonNumber
+        #if str($options.peak.minQuantitativeIonNumber)
+            -minQuantitativeIonNumber $options.peak.minQuantitativeIonNumber
         #end if
-        #if str($peak.minIntensity)
-            -minIntensity $peak.minIntensity
+        #if str($options.peak.minIntensity)
+            -minIntensity $options.peak.minIntensity
         #end if
-        #if str($peak.expectedPeakWidth)
-            -expectedPeakWidth $peak.expectedPeakWidth
+        #if str($options.peak.expectedPeakWidth)
+            -expectedPeakWidth $options.peak.expectedPeakWidth
         #end if
-        #if $peak.filterPeaklists
-            -filterPeaklists $peak.filterPeaklists
+        #if $options.peak.filterPeaklists
+            -filterPeaklists $options.peak.filterPeaklists
         #end if
     #end if
     </token>
@@ -399,24 +377,24 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
         </conditional>
     </xml>
     <token name="@WINDOW_OPTIONS@">
-    #if $window.set_window == 'yes' 
-        #if str($window.foffset)
-            -foffset $window.foffset
+    #if $options.window.set_window == 'yes' 
+        #if str($options.window.foffset)
+            -foffset $options.window.foffset
         #end if
-        #if str($window.poffset)
-            -poffset $window.poffset
+        #if str($options.window.poffset)
+            -poffset $options.window.poffset
         #end if
-        #if str($window.precursorIsolationMargin)
-            -precursorIsolationMargin $window.precursorIsolationMargin
+        #if str($options.window.precursorIsolationMargin)
+            -precursorIsolationMargin $options.window.precursorIsolationMargin
         #end if
-        #if str($window.precursorWindowSize)
-            -precursorWindowSize $window.precursorWindowSize
+        #if str($options.window.precursorWindowSize)
+            -precursorWindowSize $options.window.precursorWindowSize
         #end if
-        #if str($window.rtWindowInMin)
-            -rtWindowInMin $window.rtWindowInMin
+        #if str($options.window.rtWindowInMin)
+            -rtWindowInMin $options.window.rtWindowInMin
         #end if
-        #if $window.scoringBreadthType
-            -scoringBreadthType $window.scoringBreadthType
+        #if $options.window.scoringBreadthType
+            -scoringBreadthType $options.window.scoringBreadthType
         #end if
     #end if
     </token>
@@ -445,11 +423,11 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
         </conditional>
     </xml>
     <token name="@MODIFICATION_OPTIONS@">
-    #if $modifications.set_modifications == 'yes'
-        #if $modifications.fixed
-            -fixed $modifications.fixed
+    #if $options.modifications.set_modifications == 'yes'
+        #if $options.modifications.fixed
+            -fixed $options.modifications.fixed
         #end if
-        -verifyModificationIons $modifications.verifyModificationIons
+        -verifyModificationIons $options.modifications.verifyModificationIons
     #end if
     </token>
 
@@ -471,8 +449,6 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
                 <param argument="-minNumOfQuantitativePeaks" type="integer" value="3" min="1" max="10" label="minNumOfQuantitativePeaks" optional="true"/>
                 <param argument="-numberOfQuantitativePeaks" type="integer" value="3" min="1" max="10" label="numberOfQuantitativePeaks" optional="true"/>
 <!--
-                <param argument="-alpha" type="float" value="1.8" min="0.0" max="5.0" label="alpha"/>
-                <param argument="-beta" type="float" value="0.4" min="0.0" max="5.0" label="beta"/>
                 <param argument="-addDecoysToBackground" type="boolean" truevalue="true" falsevalue="false" checked="false" label="addDecoysToBackground"/>
                 <param argument="-dontRunDecoys" type="boolean" truevalue="true" falsevalue="false" checked="false" label="dontRunDecoys"/>
 -->
@@ -480,22 +456,32 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
         </conditional>
     </xml>
     <token name="@SEARCH_OPTIONS@">
-    #if $search.set_search == 'yes'
-        -minCharge $search.minCharge
-        -maxCharge $search.maxCharge
-        -minLength $search.minLength
-        -maxLength $search.maxLength
-        -minEluteTime $search.minEluteTime
-        -maxMissedCleavage $search.maxMissedCleavage
-        -minQuantitativeIonNumber $search.minQuantitativeIonNumber
-        -minNumOfQuantitativePeaks $search.minNumOfQuantitativePeaks
-        -numberOfQuantitativePeaks $search.numberOfQuantitativePeaks
-        ## -alpha $search.alpha
-        ## -beta $search.beta
-        ## -addDecoysToBackground $search.addDecoysToBackground
-        ## -dontRunDecoys $search.dontRunDecoys
+    #if $options.search.set_search == 'yes'
+        -minCharge $options.search.minCharge
+        -maxCharge $options.search.maxCharge
+        -minLength $options.search.minLength
+        -maxLength $options.search.maxLength
+        -minEluteTime $options.search.minEluteTime
+        -maxMissedCleavage $options.search.maxMissedCleavage
+        -minQuantitativeIonNumber $options.search.minQuantitativeIonNumber
+        -minNumOfQuantitativePeaks $options.search.minNumOfQuantitativePeaks
+        -numberOfQuantitativePeaks $options.search.numberOfQuantitativePeaks
+        ## -addDecoysToBackground $options.search.addDecoysToBackground
+        ## -dontRunDecoys $options.search.dontRunDecoys
     #end if
     </token>
+
+    <xml name="options_section">
+        <section name="options" title="Parameter Settings" expanded="false">
+            <expand macro="common_options"/>
+            <expand macro="mass_library_tolerance"/>
+            <expand macro="percolator_options"/>
+            <expand macro="peak_options"/>
+            <expand macro="window_options"/>
+            <expand macro="modification_options"/>
+        </section>
+    </xml>
+
     <xml name="libexport">
         <param argument="-a" type="boolean" truevalue="true" falsevalue="false" checked="false" label="align between files"/>
     </xml>
