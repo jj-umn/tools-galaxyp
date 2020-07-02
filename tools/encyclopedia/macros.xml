@@ -479,6 +479,7 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
             <expand macro="peak_options"/>
             <expand macro="window_options"/>
             <expand macro="modification_options"/>
+            <expand macro="search_options"/>
         </section>
     </xml>
 
