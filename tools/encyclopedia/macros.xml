@@ -31,14 +31,12 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     #end if
 #end def
 #def clean($name1)
-    ## #set $name_clean = $re.sub('[^\w\-_\.]', '_', $re.sub('(?i[.](fa|fasta|imzml|mzml)$)','', $re.sub('.*/','', $name1.rstrip('.gz'))))
-    ## #set $name_clean = $re.sub('[^\w\-_\.]', '_', $re.sub('.*/','', $name1.rstrip('.gz')))
-    #set $name_clean = $re.sub('[^\w\-_\.]', '_', $re.sub('(?i)[.](fa|fasta|imzml|mzml)$','', $re.sub('.*/','', $name1.rstrip('.gz'))))
+    #set $name_clean = $re.sub('[^\w\-_]', '_', $re.sub('(?i)[.](fa|fasta|imzml|mzml)$','', $re.sub('.*/','', $name1.rstrip('.gz'))))
     #return $name_clean
 #end def
 #def ln_name($ds) 
     #set $ext = ''
-    #if $ds.is_of_type('mzml')
+    #if $ds.is_of_type('mzml') or $ds.is_of_type('imzml')
         #set $ext = ".mzML"
     #else if $ds.is_of_type('elib')
         #set $ext = ".elib"

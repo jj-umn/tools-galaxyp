@@ -4,7 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements" />
-    <command detect_errors="exit_code"><![CDATA[
+    <command detect_errors="aggressive"><![CDATA[
         @CMD_IMPORTS@
         @LINK_SCAN_INPUTS@
         @LINK_FASTA_INPUT@
@@ -28,6 +28,7 @@
         @MODIFICATION_OPTIONS@
         @SEARCH_OPTIONS@ | tee -a search2lib.log
         ; done && 
+        for TXT in `find inputs/*.mzML.[efw]*[ast].txt`; do TRGT=`echo \$TXT | sed 's/mzML/dia/'`; ln -s \$TXT \$TRGT; done &&
         EncyclopeDIA -Djava.awt.headless=true -Xmx12g -libexport
         #if not $l
             -pecan
@@ -38,6 +39,7 @@
         @LIB_INPUT@
         -a $a
         -o chromatogram_library.elib
+        && ls -l ./*.* inputs/*
         | tee -a search2lib.log
     ]]></command>
     <inputs>
@@ -54,6 +56,8 @@
             <option value="results" selected="false">concatenated_results.txt</option>
             <option value="decoy" selected="false">concatenated_decoy.txt</option>
             <!--
+            <option value="rt_plots" selected="false">Retention Time Plots</option>
+            <option value="rt_tables" selected="false">Retention Time Tables</option>
             <option value="peptides" selected="false">peptides.txt (requires align between files)</option>
             <option value="proteins" selected="false">proteins.txt (requires align between files)</option>
             -->
@@ -85,13 +89,24 @@
             </actions>
         </data>
         <!--
-        <data name="peptides" format="tabular" label="${tool.name} ${on_string} peptides.txt" from_work_dir="chromatogram_library.peptides.txt">
+        <collection name="rt_plots" type="list" label="${tool.name} - ${on_string}: Retention Time Plots">
+            <filter>l and 'rt_plots' in select_outputs</filter>
+            <discover_datasets pattern="(?P&lt;designation&gt;.+\.pdf)" ext="pdf" directory="inputs"/>
+        </collection>
+        <collection name="rt_tables" type="list" label="${tool.name} - ${on_string}: Retention Time Tables">
+            <filter>l and 'rt_tables' in select_outputs</filter>
+            <discover_datasets pattern="(?P&lt;designation&gt;.+\.rt_fit\.txt)" ext="tabular" directory="inputs"/>
+        </collection>
+        -->
+
+        <!--
+        <data name="peptides" format="tabular" label="${tool.name} ${on_string} peptides.txt" from_work_dir="chromatogram_library.elib.peptides.txt">
             <filter>a and 'peptides' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="Peptide,Protein,numFragments" />
             </actions>
         </data>
-        <data name="proteins" format="tabular" label="${tool.name} ${on_string} proteins.txt" from_work_dir="chromatogram_library.proteins.txt">
+        <data name="proteins" format="tabular" label="${tool.name} ${on_string} proteins.txt" from_work_dir="chromatogram_library.elib.proteins.txt">
             <filter>a and 'proteins' in select_outputs</filter>
             <actions>
                 <action name="column_names" type="metadata" default="Protein,NumPeptides,PeptideSequences" />
