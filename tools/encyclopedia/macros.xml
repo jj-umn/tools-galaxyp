@@ -59,27 +59,27 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     </token>
 
     <xml name="scan_input">
-        <param argument="-i" type="data" format="imzml,mzml" label="Spectrum file in mzML format"> 
+        <param name="scan_input" argument="-i" type="data" format="imzml,mzml" label="Spectrum file in mzML format"> 
             <help>@MSCONVERT_RAW@</help>
         </param>
     </xml>
     <token name="@LINK_SCAN_INPUT@"><![CDATA[
-    #set $i_name = $ln_name($i)
-    ln -s '$i' '$i_name' &&
+    #set $i_name = $ln_name($scan_input)
+    ln -s '$scan_input' '$i_name' &&
     ]]></token>
     <token name="@SCAN_INPUT@">
     -i '$i_name'
     </token>
 
     <xml name="scan_inputs">
-        <param argument="-i" type="data" format="imzml,mzml" multiple="true" label="Spectrum files in  mzML format">
+        <param name="scan_inputs" argument="-i" type="data" format="imzml,mzml" multiple="true" label="Spectrum files in  mzML format">
             <help>@MSCONVERT_RAW@</help>
         </param>
     </xml>
     <token name="@LINK_SCAN_INPUTS@"><![CDATA[
     #set $inputs_dir = 'inputs'
     mkdir -p $inputs_dir &&
-    #for $sf in $i
+    #for $sf in $scan_inputs
       #set $i_name = $ln_name($sf)
       ln -s '$sf' '${inputs_dir}/${i_name}' &&
     #end for
@@ -89,26 +89,26 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     </token>
 
     <xml name="fasta_input">
-        <param argument="-f" type="data" format="fasta" label="Background proteome protein fasta database"> 
+        <param name="fasta" argument="-f" type="data" format="fasta" label="Background proteome protein fasta database"> 
             <help>provides the necessary peptide-to-protein links not specified in the spectrum library</help>
         </param>
     </xml>
     <token name="@LINK_FASTA_INPUT@"><![CDATA[
-    #set $f_name = $ln_name($f)
-    ln -s '$f' '$f_name' &&
+    #set $f_name = $ln_name($fasta)
+    ln -s '$fasta' '$f_name' &&
     ]]></token>
     <token name="@FASTA_INPUT@">
     -f '$f_name'
     </token>
 
     <xml name="target_fasta">
-        <param argument="-t" type="data" format="fasta" label="Target fasta database" optional="true"/> 
+        <param name="target_fasta" argument="-t" type="data" format="fasta" label="Target fasta database" optional="true"/> 
         <param argument="-tp" type="boolean" truevalue="true" falsevalue="false" checked="false" label="target FASTA file contains peptides"/>
     </xml>
     <token name="@LINK_TARGET_FASTA@"><![CDATA[
-    #if $t
-    #set $t_name = $ln_name($t)
-    ln -s '$t' '$t_name' &&
+    #if $target_fasta
+    #set $t_name = $ln_name($target_fasta)
+    ln -s '$target_fasta' '$t_name' &&
     #else
     #set $t_name = None
     #end if
@@ -121,14 +121,14 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     </token>
 
     <xml name="lib_input" token_optional="true" token_libhelp="">
-        <param argument="-l" type="data" format="elib,dlib" optional="@OPTIONAL@" label="Library: Chromatagram .ELIB or Spectrum .DLIB"> 
+        <param name="library" argument="-l" type="data" format="elib,dlib" optional="@OPTIONAL@" label="Library: Chromatagram .ELIB or Spectrum .DLIB"> 
             <help>@LIBHELP@</help>
         </param>
     </xml>
     <token name="@LINK_LIB_INPUT@"><![CDATA[
-    #if $l
-    #set $l_name = $ln_name($l)
-    cp '$l' $l_name &&
+    #if $library
+    #set $l_name = $ln_name($library)
+    cp '$library' $l_name &&
     #else
     #set $l_name = None
     #end if

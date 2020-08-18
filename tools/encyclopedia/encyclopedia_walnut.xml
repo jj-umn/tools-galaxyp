@@ -61,52 +61,43 @@
             </actions>
         </data>
     </outputs>
+    <tests>
+        <test>
+            <param name="scan_input" ftype="mzml" value="BCS_hela_narrow_3_1.mzML"/>
+            <param name="fasta" ftype="fasta" value="uniprot_tiny_human.fasta"/>
+            <output name="features" ftype="tabular">
+                <assert_contents>
+                    <has_text text="LHYNEGLNIK"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
     <help><![CDATA[
+
+    <help><![CDATA[
+
+**Walnut**
+
+@ENCYCLOPEDIA_WIKI@
+
 Walnut is a FASTA database search engine for Data-Independent Acquisition (DIA) MS/MS data.
 Walnut uses PeCAn-style scoring to extract peptide fragmentation chromatograms from MZML files, assign peaks, and calculate various peak features. These features are interpreted by Percolator to identify peptides.
 
-Required Parameters: 
-	-i	input .DIA or .MZML file
-	-f	background FASTA file
 
-Other Parameters: 
-	-t	target FASTA file (default: background FASTA file)
-	-tp	true/false target FASTA file contains peptides (default: false)
-	-o	output report file (default: [input file].pecan.txt)
-	-acquisition                          (default: overlapping dia)
-	-addDecoysToBackground                (default: false)
-	-alpha                                (default: 1.8)
-	-beta                                 (default: 0.4)
-	-dontRunDecoys                        (default: false)
-	-enzyme                               (default: trypsin)
-	-filterPeaklists                      (default: false)
-	-fixed                                (default: C=57.0214635)
-	-foffset                              (default: 0)
-	-frag                                 (default: YONLY)
-	-ftol                                 (default: 10)
-	-ftolunits                            (default: ppm)
-	-maxCharge                            (default: 3)
-	-maxLength                            (default: 100)
-	-maxMissedCleavage                    (default: 1)
-	-minCharge                            (default: 2)
-	-minEluteTime                         (default: 12)
-	-minIntensity                         (default: -1.0)
-	-minLength                            (default: 5)
-	-minNumOfQuantitativePeaks            (default: 3)
-	-minQuantitativeIonNumber             (default: 3)
-	-numberOfQuantitativePeaks            (default: 5)
-	-numberOfReportedPeaks                (default: 1)
-	-numberOfThreadsUsed                  (default: 12)
-	-percolatorProteinThreshold           (default: 0.01)
-	-percolatorThreshold                  (default: 0.01)
-	-percolatorVersionNumber              (default: 3)
-	-poffset                              (default: 0)
-	-precursorIsolationMargin             (default: 0)
-	-precursorWindowSize                  (default: -1)
-	-ptol                                 (default: 10)
-	-ptolunits                            (default: ppm)
-	-requireVariableMods                  (default: false)
-	-variable                             (default: -)
+**Inputs**
+
+
+  - A spectrum file in mzML format
+  - A protein data base in fasta format
+
+
+@MSCONVERT_HELP@
+
+**Outputs**
+
+  - A log file
+  - The identified features in tabular format 
+  - The identified proteins in tabular format 
 
     ]]></help>
     <expand macro="citations" />

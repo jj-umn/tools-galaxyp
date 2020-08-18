@@ -105,6 +105,23 @@
             </actions>
         </data>
     </outputs>
+    <tests>
+        <test>
+            <param name="scan_inputs" ftype="mzml" value="BCS_hela_wide_500_900_1.mzML,BCS_hela_wide_500_900_2.mzML"/>
+            <param name="library" ftype="elib" value="BCS_hela.elib"/>
+            <param name="fasta" ftype="fasta" value="uniprot_human.fasta"/>
+            <output name="results" ftype="tabular">
+                <assert_contents>
+                    <has_text text="ESYDDVSSFR"/>
+                </assert_contents>
+            </output>
+            <output name="proteins" ftype="tabular">
+                <assert_contents>
+                    <has_text text="ESYDDVSSFR"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
     <help><![CDATA[
 
 **EncyclopeDIA Quantify**
