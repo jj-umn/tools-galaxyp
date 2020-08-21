@@ -128,7 +128,7 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     <token name="@LINK_LIB_INPUT@"><![CDATA[
     #if $library
     #set $l_name = $ln_name($library)
-    cp '$library' $l_name &&
+    cp '$library' '$l_name' &&
     #else
     #set $l_name = None
     #end if
@@ -494,7 +494,7 @@ mzML conversion from RAW requires special options: @MSCONVERT_CMD@
     </token>
     <token name="@MSCONVERT_HELP@"><![CDATA[
 
-    The MSConvert command can be used to deconvolute DIA raw files. You need to use these options
+    The MSConvert command can be used to convert and deconvolute DIA raw files to mzML format. You need to use these options:
 
     ::
 

@@ -30,9 +30,9 @@
         <param name="select_outputs" type="select" label="Select outputs" multiple="true">
             <option value="log" selected="true">log</option>
             <option value="elib" selected="true">elib</option>
-            <option value="features" selected="true">features.txt</option>
+            <option value="features" selected="false">features.txt</option>
             <option value="pecan" selected="true">pecan.txt</option>
-            <option value="pecan_decoy" selected="true">pecan.decoy.txt</option>
+            <option value="pecan_decoy" selected="false">pecan.decoy.txt</option>
         </param>
     </inputs>
     <outputs>
@@ -73,9 +73,6 @@
         </test>
     </tests>
     <help><![CDATA[
-
-    <help><![CDATA[
-
 **Walnut**
 
 @ENCYCLOPEDIA_WIKI@
@@ -84,20 +81,29 @@ Walnut is a FASTA database search engine for Data-Independent Acquisition (DIA) 
 Walnut uses PeCAn-style scoring to extract peptide fragmentation chromatograms from MZML files, assign peaks, and calculate various peak features. These features are interpreted by Percolator to identify peptides.
 
 
-**Inputs**
 
+**Inputs**
 
   - A spectrum file in mzML format
   - A protein data base in fasta format
-
 
 @MSCONVERT_HELP@
 
 **Outputs**
 
   - A log file
-  - The identified features in tabular format 
-  - The identified proteins in tabular format 
+  - A Chromatogram Library (.elib)
+  - The identified features in tabular format
+    Feature values of scans that are used by percolator to determine matches.
+  - The identified Peptide Spectral Match results in tabular format
+    Columns: PSMId, score, q-value, posterior_error_prob, peptide, proteinIds
+  - The identified peptides in tabular format
+    Per peptide: the normalized intensity for each scan file.
+    Columns: Peptide, Protein, numFragments, intensity_in_file1, intensity_in_file2, ...
+  - The identified proteins in tabular format
+    Per protein: the normalized intensity for each scan file.
+    Columns: Protein, NumPeptides, PeptideSequences, intensity_in_file1, intensity_in_file2, ...
+
 
     ]]></help>
     <expand macro="citations" />
