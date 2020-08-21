@@ -65,7 +65,7 @@
         <test>
             <param name="scan_input" ftype="mzml" value="BCS_hela_narrow_3_1.mzML"/>
             <param name="fasta" ftype="fasta" value="uniprot_tiny_human.fasta"/>
-            <param name="select_outputs" values="log,features,pecan"/>
+            <param name="select_outputs" value="log,features,pecan"/>
             <output name="features" ftype="tabular">
                 <assert_contents>
                     <has_text text="LHYNEGLNIK"/>

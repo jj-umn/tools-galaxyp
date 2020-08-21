@@ -95,7 +95,7 @@
             <param name="scan_input" ftype="mzml" value="BCS_hela_wide_500_900_1.mzML"/>
             <param name="library" ftype="elib" value="BCS_hela.elib"/>
             <param name="fasta" ftype="fasta" value="uniprot_human.fasta"/>
-            <param name="select_outputs" values="log,features,encyclopedia"/>
+            <param name="select_outputs" value="log,features,encyclopedia"/>
             <output name="features" ftype="tabular">
                 <assert_contents>
                     <has_text text="ESYDDVSSFR"/>
