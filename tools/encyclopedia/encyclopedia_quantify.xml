@@ -34,6 +34,8 @@
         -a $a
         -o chromatogram_library.elib
         && ls -l ./*.* inputs/*
+        && cat chromatogram_library.elib.peptides.txt
+        && cat chromatogram_library.elib.proteins.txt
         | tee -a search2lib.log
     ]]></command>
     <inputs>
@@ -108,12 +110,12 @@
             <param name="fasta" ftype="fasta" value="uniprot_human.fasta"/>
             <output name="results" ftype="tabular">
                 <assert_contents>
-                    <has_text text="ESYDDVSSFR"/>
+                    <has_text text="GIEQAVQSHAVAEEEAR"/>
                 </assert_contents>
             </output>
-            <output name="proteins" ftype="tabular">
+            <output name="peptides" ftype="tabular">
                 <assert_contents>
-                    <has_text text="ESYDDVSSFR"/>
+                    <has_text text="AYPLADAHLTK"/>
                 </assert_contents>
             </output>
         </test>
