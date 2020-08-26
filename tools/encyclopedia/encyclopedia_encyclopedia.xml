@@ -9,7 +9,7 @@
         @LINK_SCAN_INPUT@
         @LINK_FASTA_INPUT@
         @LINK_LIB_INPUT@
-        EncyclopeDIA -Djava.awt.headless=true
+        EncyclopeDIA -Djava.awt.headless=true -Xmx\$[ \${GALAXY_MEMORY_MB:-20480} / 1024 ]g
         @SCAN_INPUT@
         @FASTA_INPUT@
         @LIB_INPUT@

@@ -9,7 +9,7 @@
         @LINK_SCAN_INPUT@
         @LINK_FASTA_INPUT@
         @LINK_TARGET_FASTA@
-        EncyclopeDIA -Djava.awt.headless=true -Xmx12g -walnut
+        EncyclopeDIA -Djava.awt.headless=true -Xmx\$[ \${GALAXY_MEMORY_MB:-20480} / 1024 ]g -walnut
         @SCAN_INPUT@
         @FASTA_INPUT@
         @TARGET_FASTA@

@@ -12,7 +12,7 @@
         @LINK_LIB_INPUT@
         for SCAN_FILE in `ls -1 inputs/*`; do 
         echo "\$SCAN_FILE" &&
-        EncyclopeDIA -Djava.awt.headless=true -Xmx20g 
+        EncyclopeDIA -Djava.awt.headless=true -Xmx\$[ \${GALAXY_MEMORY_MB:-20480} / 1024 ]g 
         -i \$SCAN_FILE
         @FASTA_INPUT@
         @TARGET_FASTA@
@@ -26,7 +26,7 @@
         @SEARCH_OPTIONS@ | tee -a search2lib.log
         ; done && 
         for TXT in `find inputs/*.mzML.[efw]*[ast].txt`; do TRGT=`echo \$TXT | sed 's/mzML/dia/'`; ln -s \$TXT \$TRGT; done &&
-        EncyclopeDIA -Djava.awt.headless=true -Xmx12g -libexport
+        EncyclopeDIA -Djava.awt.headless=true -Xmx\$[ \${GALAXY_MEMORY_MB:-20480} / 1024 ]g -libexport
         @SCAN_INPUTS@
         @FASTA_INPUT@
         @TARGET_FASTA@
