@@ -16,3 +16,16 @@ auto_tool_repositories:
 suite:
   name: "suite_encyclopedia"
   description: EncyclopeDIA Data-Independent Acquisition (DIA) MS/MS Data Analysis 
+exclude:
+  - test-data/PrositLib.dlib
+  - test-data/PeptidesForProsit.csv
+  - test-data/BCS_hela.elib
+  - test-data/uniprot_human.fasta
+  - test-data/BCS_hela_narrow_3_2.mzML
+  - test-data/BCS_hela_wide_500_900_1.mzML
+  - test-data/YeastProteinFasta5.fasta
+  - test-data/uniprot_tiny_human.fasta
+  - test-data/BCS_hela_narrow_3_1.mzML
+  - test-data/BCS_hela_wide_500_900_2.mzML
+  - test-data/small_pan_human_library.dlib
+  - test-data/PrositLib.csv

@@ -102,8 +102,12 @@ EncyclopeDIA_ is library search engine comprised of several algorithms for DIA d
     </token>
 
     <xml name="target_fasta">
-        <param name="target_fasta" argument="-t" type="data" format="fasta" label="Target fasta database" optional="true"/> 
-        <param argument="-tp" type="boolean" truevalue="true" falsevalue="false" checked="false" label="target FASTA file contains peptides"/>
+        <param name="target_fasta" argument="-t" type="data" format="fasta" label="Target fasta database" optional="true"> 
+            <help>Optional - Only analyze this subset of the background fasta proteome</help>
+        </param>
+        <param argument="-tp" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Target FASTA file contains peptides">
+            <help>Rather than full proteins</help>
+        </param>
     </xml>
     <token name="@LINK_TARGET_FASTA@"><![CDATA[
     #if $target_fasta
