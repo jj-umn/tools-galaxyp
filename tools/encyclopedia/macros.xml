@@ -8,7 +8,7 @@
     </xml>
 
     <token name="@ENCYCLOPEDIA_WIKI@">
-EncyclopeDIA_ is library search engine comprised of several algorithms for DIA data analysis and can search for peptides using either DDA-based spectrum libraries or DIA-based chromatogram libraries. 
+EncyclopeDIA_ is library search engine comprised of several algorithms for DIA data analysis and can search for peptides using either DDA-based spectrum libraries or DIA-based chromatogram libraries. See: https://bitbucket.org/searleb/encyclopedia/wiki/Home
 
 .. _EncyclopeDIA: https://bitbucket.org/searleb/encyclopedia/wiki/Home
     </token>
